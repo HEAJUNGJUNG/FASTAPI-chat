@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>FASTAPI CHAT</title>
+  <link rel="stylesheet" href="/static/chat.css">
+</head>
+<body>
+  <header>
+    <div>💬 Chat Room #1</div>
+    <button onclick="logout()">로그아웃</button>
+  </header>
+
+  <div id="chat-box"></div>
+
+  <div id="input-box">
+    <input id="input" type="text" placeholder="메시지를 입력하세요..." autocomplete="off" />
+    <button id="send" onclick="sendMessage()">전송</button>
+  </div>
+
+  <script>
+	const token = localStorage.getItem("token");
+	const username = localStorage.getItem("username") || "익명";
+
+	const ws = new WebSocket(`ws://${location.host}/chat/ws/room1?token=${token}`);
+
+	ws.onmessage = (event) => {
+	  const data = JSON.parse(event.data);
+	  const chatBox = document.getElementById("chat-box");
+
+	  const msgDiv = document.createElement("div");
+	  msgDiv.classList.add("message");
+
+	  // ✅ 내가 보낸 메시지인지 비교
+	  if (data.username === username) {
+		msgDiv.classList.add("mine");
+	  } else {
+		msgDiv.classList.add("yours");
+	  }
+
+	  const userLabel = document.createElement("div");
+	  userLabel.classList.add("username");
+	  userLabel.innerText = data.username || "익명";
+
+	  const text = document.createElement("div");
+	  text.classList.add("text");
+	  text.innerText = data.message;
+
+	  msgDiv.appendChild(userLabel);
+	  msgDiv.appendChild(text);
+	  chatBox.appendChild(msgDiv);
+	  chatBox.scrollTop = chatBox.scrollHeight;
+	};
+
+	// ✅ 메시지 전송 시 username도 포함!
+	function sendMessage() {
+	  const input = document.getElementById("input");
+	  const msg = input.value.trim();
+	  if (msg) {
+		ws.send(JSON.stringify({ username: username, message: msg }));
+		input.value = "";
+	  }
+	}
+	</script>
+
+</body>
+</html>

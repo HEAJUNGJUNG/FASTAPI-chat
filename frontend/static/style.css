@@ -1,0 +1,156 @@
+/* 기본 폰트 및 배경 */
+body {
+  margin: 0;
+  font-family: 'Inter', 'Noto Sans KR', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* 라이트 모드 (기본) */
+body {
+  background-color: #f9f9fb;
+  color: #333;
+}
+
+/* 다크 모드 자동 대응 */
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #202123;
+    color: #e8e8e8;
+  }
+}
+
+/* 로그인 박스 */
+.login-box {
+  background: #ffffff;
+  padding: 40px 50px;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  width: 340px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.login-box:hover {
+  transform: translateY(-2px);
+}
+
+/* 다크모드 전환 시 박스 색상 */
+@media (prefers-color-scheme: dark) {
+  .login-box {
+    background-color: #2d2f33;
+    box-shadow: 0 4px 15px rgba(255,255,255,0.05);
+  }
+}
+
+/* 제목 */
+h1 {
+  font-size: 1.8rem;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.subtitle {
+  color: #777;
+  font-size: 0.9rem;
+  margin-bottom: 30px;
+}
+
+/* 다크모드 시 부제 */
+@media (prefers-color-scheme: dark) {
+  .subtitle {
+    color: #aaa;
+  }
+}
+
+/* 입력창 */
+input {
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s, background-color 0.3s, color 0.3s;
+}
+
+/* 라이트 */
+input {
+  background-color: #fff;
+  color: #333;
+}
+
+/* 다크모드 */
+@media (prefers-color-scheme: dark) {
+  input {
+    background-color: #3c3f44;
+    border: 1px solid #555;
+    color: #f1f1f1;
+  }
+  input::placeholder {
+    color: #aaa;
+  }
+}
+
+/* 버튼 */
+button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+/* 로그인 버튼 */
+.login-btn {
+  background-color: #10a37f;
+  color: white;
+  margin-bottom: 10px;
+}
+
+.login-btn:hover {
+  background-color: #0e8c6d;
+}
+
+/* 회원가입 버튼 */
+.signup-btn {
+  background-color: #e8f0ed;
+  color: #0e8c6d;
+}
+
+.signup-btn:hover {
+  background-color: #d6ebe3;
+}
+
+/* 다크모드 버튼 스타일 */
+@media (prefers-color-scheme: dark) {
+  .signup-btn {
+    background-color: #3b3f44;
+    color: #10a37f;
+  }
+  .signup-btn:hover {
+    background-color: #4a4f55;
+  }
+}
+
+/* 메시지 */
+.message {
+  margin-top: 18px;
+  font-size: 0.9rem;
+  color: #d93025;
+  transition: color 0.3s;
+}
+
+/* 다크모드 메시지 */
+@media (prefers-color-scheme: dark) {
+  .message {
+    color: #ff6b6b;
+  }
+}

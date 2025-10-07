@@ -36,13 +36,12 @@ manager = ConnectionManager()
 
 @router.websocket("/ws/{room_id}")
 async def websocket_endpoint(websocket: WebSocket, room_id: str, db: Session = Depends(get_db)):
-    # 1. 쿼리 파라미터에서 토큰 꺼내기
+    # 1️⃣ 토큰 검증
     token = websocket.query_params.get("token")
-    if not token:   # 👈 여기가 함수 안에서 4칸 들여쓰기
+    if not token:
         await websocket.close()
         return
 
-    # 2. 토큰 검증
     try:
         payload = jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
         username: str = payload.get("sub")
@@ -53,31 +52,49 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str, db: Session = D
         await websocket.close()
         return
 
-    # 3. 연결 성공 → 채팅방 등록
+    # 2️⃣ 연결 등록
     await manager.connect(room_id, websocket)
 
     try:
         while True:
-            data = await websocket.receive_text()
+            # 프론트엔드에서 {"username": "익명", "message": "내용"} 으로 보낸다고 가정
+            data = await websocket.receive_json()
+            
+            # 혹시라도 message가 dict로 들어온 경우 방어 코드
+            if isinstance(data.get("message"), dict):
+                message_text = data["message"].get("message", "")
+                sender = data["message"].get("username", username)
+            else:
+                message_text = data.get("message", "")
+                sender = data.get("username", username)
+
             # DB 저장
             chat_message = models.ChatMessage(
                 room_id=room_id,
-                username=username,
-                message=data,
+                username=sender,
+                message=message_text,  # ✅ 문자열만 들어가도록 보장
                 timestamp=datetime.utcnow()
             )
             db.add(chat_message)
             db.commit()
 
-            # 브로드캐스트
+            # broadcast
             await manager.broadcast(room_id, {
-                "username": username,
-                "message": data,
-                "timestamp": str(chat_message.timestamp)
+                "username": sender,
+                "message": message_text,
+                "timestamp": chat_message.timestamp.strftime("%H:%M:%S")
             })
+
     except WebSocketDisconnect:
         manager.disconnect(room_id, websocket)
+        await manager.broadcast(room_id, {
+            "username": "SYSTEM",
+            "message": f"{username} 님이 퇴장했습니다.",
+            "timestamp": datetime.utcnow().strftime("%H:%M:%S")
+        })
+
 
 @router.get("/messages/{room_id}", response_model=List[schemas.ChatMessageResponse])
 def get_messages(room_id: str, db: Session = Depends(get_db)):
+    """이전 채팅 내역 조회"""
     return db.query(models.ChatMessage).filter(models.ChatMessage.room_id == room_id).order_by(models.ChatMessage.timestamp).all()
