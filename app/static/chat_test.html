@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>FastAPI Chat Test</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    #chat { border: 1px solid #ccc; padding: 10px; width: 400px; height: 300px; overflow-y: auto; }
+    #msg { width: 300px; }
+  </style>
+</head>
+<body>
+  <h1>실시간 채팅 테스트</h1>
+
+  <label>JWT 토큰 입력: <input id="token" type="text" size="60" placeholder="여기에 로그인 access_token 붙여넣기"></label><br><br>
+  <label>채팅방 ID: <input id="room" type="text" value="room1"></label>
+  <button onclick="connect()">연결</button>
+
+  <h3>채팅창</h3>
+  <div id="chat"></div>
+
+  <input id="msg" type="text" placeholder="메시지 입력">
+  <button onclick="sendMessage()">보내기</button>
+
+  <script>
+    let socket;
+
+    function connect() {
+      const token = document.getElementById("token").value;
+      const room = document.getElementById("room").value;
+
+      if (!token) {
+        alert("JWT 토큰을 입력하세요!");
+        return;
+      }
+
+      socket = new WebSocket(`ws://127.0.0.1:8000/chat/ws/${room}?token=${token}`);
+
+      socket.onopen = () => {
+        log("✅ 서버와 연결됨!");
+      };
+
+      socket.onmessage = (event) => {
+        log("📩 " + event.data);
+      };
+
+      socket.onclose = () => {
+        log("❌ 연결 종료됨");
+      };
+    }
+
+    function sendMessage() {
+      const msg = document.getElementById("msg").value;
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(msg);
+        document.getElementById("msg").value = "";
+      } else {
+        alert("서버와 연결되지 않았습니다!");
+      }
+    }
+
+    function log(message) {
+      const chat = document.getElementById("chat");
+      const p = document.createElement("p");
+      p.textContent = message;
+      chat.appendChild(p);
+      chat.scrollTop = chat.scrollHeight;
+    }
+  </script>
+</body>
+</html>

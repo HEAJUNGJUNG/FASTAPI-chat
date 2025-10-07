@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"/>
+  <title>API 문서 | FastAPI Portfolio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+  <!-- ReDoc CDN -->
+  <script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"></script>
+
+  <!-- 기본 스타일 + 상단 헤더 -->
+  <style>
+    :root{
+      --brand:#4f46e5; /* 인디고 */
+      --ink:#0f172a;   /* slate-900 */
+      --bg:#ffffff;    /* white */
+      --muted:#64748b; /* slate-500 */
+    }
+    .dark{
+      --bg:#0b1020;
+      --ink:#e5e7eb;
+      --muted:#9aa4b2;
+      --brand:#8b5cf6;
+    }
+    html,body{height:100%}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:ui-sans-serif,system-ui,Segoe UI,Helvetica,Apple Color Emoji,Arial,sans-serif}
+    .topbar{
+      position:sticky;top:0;z-index:100;
+      display:flex;gap:12px;align-items:center;justify-content:space-between;
+      padding:12px 16px;border-bottom:1px solid #e5e7eb;background:var(--bg)
+    }
+    .brand{display:flex;align-items:center;gap:10px;font-weight:700}
+    .brand .dot{width:10px;height:10px;border-radius:50%;background:var(--brand)}
+    .actions{display:flex;gap:8px;}
+    .btn{
+      appearance:none;border:1px solid #e5e7eb;background:#f8fafc;color:#111827;
+      padding:8px 12px;border-radius:10px;cursor:pointer;font-weight:600
+    }
+    .btn:hover{filter:brightness(0.97)}
+    .btn.primary{background:var(--brand);border-color:var(--brand);color:white}
+    .sub{color:var(--muted);font-size:12px}
+    /* ReDoc 루트 높이 보장 */
+    #redoc-container{height:calc(100vh - 58px)}
+  </style>
+</head>
+<body>
+  <!-- 상단 브랜드/액션 -->
+  <div class="topbar">
+    <div class="brand">
+      <span class="dot"></span>
+      <div>
+        <div>FastAPI Portfolio – API 문서</div>
+        <div class="sub">Swagger는 실행용, ReDoc은 보기용 문서</div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn" id="toggleTheme">🌓 다크/라이트</button>
+      <a class="btn" href="/docs" title="Swagger UI로 이동">⚡ Swagger 실행</a>
+      <a class="btn primary" href="/openapi.json" target="_blank" title="OpenAPI JSON">↓ OpenAPI</a>
+    </div>
+  </div>
+
+  <!-- ReDoc가 렌더링될 컨테이너 -->
+  <div id="redoc-container"></div>
+
+  <script>
+    // 다크모드 토글
+    const root = document.documentElement;
+    document.getElementById('toggleTheme').addEventListener('click',()=>{
+      root.classList.toggle('dark');
+      // ReDoc은 내부 테마를 다시 초기화해야 색상이 반영됩니다.
+      initRedoc();
+    });
+
+    function initRedoc(){
+      Redoc.init('/openapi.json', {
+        hideDownloadButton: false,
+        expandResponses: '200,201,4xx',
+        onlyRequiredInSamples: false,
+        pathInMiddlePanel: true,
+        disableSearch: false,
+        // 커스텀 테마
+        theme: {
+          colors: {
+            primary: { main: getComputedStyle(root).getPropertyValue('--brand').trim() },
+            text: { primary: getComputedStyle(root).getPropertyValue('--ink').trim() }
+          },
+          typography: {
+            fontSize: '14px',
+            lineHeight: '1.6',
+            headings: { fontWeight: '700' },
+            code: { fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace', fontSize: '13px' }
+          },
+          sidebar: { backgroundColor: 'transparent' },
+          rightPanel: { backgroundColor: 'transparent' }
+        }
+      }, document.getElementById('redoc-container'));
+    }
+    initRedoc();
+  </script>
+</body>
+</html>
