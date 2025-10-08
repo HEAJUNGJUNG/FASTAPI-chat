@@ -6,6 +6,8 @@ from app.auth import routes as auth_routes
 from app.todo import routes as todo_routes
 from app.url import routes as url_routes
 from app.chat import routes as chat_routes
+from app.auth import routes_email
+from app.auth import routes_kakao
 
 import os
 
@@ -28,6 +30,8 @@ app.include_router(auth_routes.router)
 app.include_router(todo_routes.router)
 app.include_router(url_routes.router) 
 app.include_router(chat_routes.router)
+app.include_router(routes_email.router)
+app.include_router(routes_kakao.router)
 
 @app.get("/", include_in_schema=False)
 def root():
