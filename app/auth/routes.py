@@ -14,6 +14,7 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
 @router.post("/login")
 def login(user: UserLogin, db: Session = Depends(get_db)):
     db_user = authenticate_user(db, user.username, user.password)
+
     if not db_user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
     return login_user(db_user)

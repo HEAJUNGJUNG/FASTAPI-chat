@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>FASTAPI CHAT - Login</title>
+  <title>FASTAPI CHAT - room</title>
   <link rel="stylesheet" href="/static/style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Noto+Sans+KR:wght@400;600&display=swap" rel="stylesheet">
 </head>
@@ -12,48 +12,73 @@
     <h1>FASTAPI CHAT</h1>
     <p class="subtitle">간단하고 빠른 대화 플랫폼</p>
 
-    <input type="text" id="username" placeholder="아이디" />
-    <input type="password" id="password" placeholder="비밀번호" />
+    <input type="text" id="roomName" placeholder="방이름" />
+    <input type="text" id="roomId" placeholder="방번호" />
 
-    <button class="login-btn" onclick="login()">로그인</button>
-    <button class="signup-btn" onclick="signup()">회원가입</button>
+    <button class="login-btn" onclick="createRoom()">방 새로만들기</button>
+    <button class="login-btn" onclick="enterRoom()">방 입장</button>
 
     <p id="msg" class="message"></p>
   </div>
 </div>
 
 <script>
-  async function signup() {
-    const username = document.getElementById("username").value.trim();
-    const password = document.getElementById("password").value.trim();
+  async function createRoom() {
+    await valid(['roomName']);
+    const roomNm = document.getElementById("roomName").value.trim();
 
-    const res = await fetch("/auth/signup", {
+    const res = await fetch("/rooms/createRooms", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password })
-    });
-    document.getElementById("msg").innerText =
-            res.ok ? "회원가입 성공! 로그인해주세요." : "회원가입 실패";
-  }
-
-  async function login() {
-    const username = document.getElementById("username").value.trim();
-    const password = document.getElementById("password").value.trim();
-
-    const res = await fetch("/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password , code: room})
+      body: JSON.stringify({ name })
     });
 
     if (res.ok) {
       const data = await res.json();
-      localStorage.setItem("token", data.access_token);
-      localStorage.setItem("username", username);  // ✅ 추가
+      const roomId = data.room_id;
+
+      localStorage.setItem("roomId", roomId);
+      localStorage.setItem("roomNm", roomNm);
       window.location.href = "/chat";
     } else {
-      document.getElementById("msg").innerText = "로그인 실패: 아이디나 비밀번호 확인";
+      document.getElementById("msg").innerText = "방만들기실패";
     }
+  }
+
+  async function enterRoom() {
+    await valid(['roomId']);
+    const room_id = document.getElementById("roomId").value.trim();
+
+    const res = await fetch("/rooms/selectRooms", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ room_id })
+    });
+
+    if (res.ok) {
+      const data = await res.json();console.log(data)
+      const roomNm = data.name;
+      document.getElementById("roomName").value = roomNm;
+
+      localStorage.setItem("roomId", room_id);
+      localStorage.setItem("roomNm", roomNm);
+      window.location.href = "/chat";
+    } else {
+      document.getElementById("msg").innerText = "없는방번호";
+    }
+  }
+
+  async function valid (arr) {
+    let valid = true;
+    arr.forEach(id => {
+      const val = document.getElementById(id).value.trim();
+      const name = document.getElementById(id).placeholder;
+      if (!val) {
+        document.getElementById('msg').innerText = name + "를 입력하세요.";
+        valid = false;
+      }
+    })
+    return valid;
   }
 </script>
 </body>

@@ -7,7 +7,7 @@
 </head>
 <body>
   <header>
-    <div>💬 Chat Room #1</div>
+    <div id="roomNmId">💬 </div>
     <button onclick="logout()">로그아웃</button>
   </header>
 
@@ -21,8 +21,12 @@
   <script>
 	const token = localStorage.getItem("token");
 	const username = localStorage.getItem("username") || "익명";
+    const roomId = localStorage.getItem("roomId");
+    const roomNm = localStorage.getItem("roomNm");
 
-	const ws = new WebSocket(`ws://${location.host}/chat/ws/room1?token=${token}`);
+    document.getElementById("roomNmId").innerText += [" " , roomNm, "(", roomId ,")"].join("");
+
+	const ws = new WebSocket(`ws://${location.host}/chat/ws/${roomId}?token=${token}`);
 
 	ws.onmessage = (event) => {
 	  const data = JSON.parse(event.data);

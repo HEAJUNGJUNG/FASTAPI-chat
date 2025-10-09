@@ -1,13 +1,12 @@
 from fastapi import FastAPI, Request
 from app.core.database import Base, engine
-from app.auth import models as auth_models
-from app.todo import models as todo_models
 from app.auth import routes as auth_routes
 from app.todo import routes as todo_routes
 from app.url import routes as url_routes
 from app.chat import routes as chat_routes
 from app.auth import routes_email
 from app.auth import routes_kakao
+from app.chat import routes_room as room_routes
 
 import os
 
@@ -32,6 +31,7 @@ app.include_router(url_routes.router)
 app.include_router(chat_routes.router)
 app.include_router(routes_email.router)
 app.include_router(routes_kakao.router)
+app.include_router(room_routes.router)
 
 @app.get("/", include_in_schema=False)
 def root():
@@ -40,6 +40,10 @@ def root():
 @app.get("/login", include_in_schema=False)
 def login_page(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
+
+@app.get("/room", include_in_schema=False)
+def chat_page(request: Request):
+    return templates.TemplateResponse("room.html", {"request": request})
 
 @app.get("/chat", include_in_schema=False)
 def chat_page(request: Request):

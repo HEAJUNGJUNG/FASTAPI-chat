@@ -2,8 +2,6 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
 from sqlalchemy.orm import Session
 from typing import List
 from app.core.database import get_db
-from app.auth.deps import get_current_user
-from app.auth.models import User
 from app.chat import models, schemas
 from jose import jwt, JWTError
 from app.core.config import settings
@@ -59,7 +57,7 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str, db: Session = D
         while True:
             # 프론트엔드에서 {"username": "익명", "message": "내용"} 으로 보낸다고 가정
             data = await websocket.receive_json()
-            
+
             # 혹시라도 message가 dict로 들어온 경우 방어 코드
             if isinstance(data.get("message"), dict):
                 message_text = data["message"].get("message", "")
