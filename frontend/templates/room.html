@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>FASTAPI CHAT - Login</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Noto+Sans+KR:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="login-container">
+  <div class="login-box">
+    <h1>FASTAPI CHAT</h1>
+    <p class="subtitle">간단하고 빠른 대화 플랫폼</p>
+
+    <input type="text" id="username" placeholder="아이디" />
+    <input type="password" id="password" placeholder="비밀번호" />
+
+    <button class="login-btn" onclick="login()">로그인</button>
+    <button class="signup-btn" onclick="signup()">회원가입</button>
+
+    <p id="msg" class="message"></p>
+  </div>
+</div>
+
+<script>
+  async function signup() {
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    const res = await fetch("/auth/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password })
+    });
+    document.getElementById("msg").innerText =
+            res.ok ? "회원가입 성공! 로그인해주세요." : "회원가입 실패";
+  }
+
+  async function login() {
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    const res = await fetch("/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password , code: room})
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      localStorage.setItem("token", data.access_token);
+      localStorage.setItem("username", username);  // ✅ 추가
+      window.location.href = "/chat";
+    } else {
+      document.getElementById("msg").innerText = "로그인 실패: 아이디나 비밀번호 확인";
+    }
+  }
+</script>
+</body>
+</html>
